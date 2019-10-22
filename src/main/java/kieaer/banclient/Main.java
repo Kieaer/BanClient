@@ -23,7 +23,7 @@ public class Main extends Plugin{
         Events.on(PlayerJoin.class, e -> {
             Thread t = new Thread(() -> {
                 try {
-                    InetAddress address = InetAddress.getByName("192.168.35.100");
+                    InetAddress address = InetAddress.getByName("mindustry.kr");
                     Socket socket = new Socket(address, 25000);
                     OutputStream os = socket.getOutputStream();
                     OutputStreamWriter osw = new OutputStreamWriter(os, StandardCharsets.UTF_8);
