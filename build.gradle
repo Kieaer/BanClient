@@ -1,0 +1,28 @@
+apply plugin: "java"
+
+version '1.0'
+
+sourceCompatibility = 1.8
+
+repositories{
+    mavenCentral()
+    maven{ url 'https://jitpack.io' }
+}
+
+ext{
+    target = 'v96'
+}
+
+dependencies{
+    compileOnly "com.github.Anuken.Arc:arc-core:$target"
+    compileOnly "com.github.Anuken.Mindustry:core:$target"
+
+    compile group: 'org.json', name: 'json', version: '20190722'
+}
+
+jar{
+    version = null
+    from{
+        configurations.runtimeClasspath.collect{it.isDirectory() ? it : zipTree(it)}
+    }
+}
