@@ -66,17 +66,17 @@ public class Main extends Plugin{
                         }
                     }
                     if (kick) {
-                        Call.onKick(e.player.con, "You're banned from main server!");
-                        Log.info(e.player.name + " player has been kicked due to banned from main server.");
+                        Call.onKick(e.player.con, "You're banned from the main server!");
+                        Log.info(e.player.name + " player has been kicked due to him being banned from the main server.");
                     } else {
-                        Log.info(e.player.name + " player isn't banned from main server.");
+                        Log.info(e.player.name + " player isn't banned from the main server.");
                     }
                     result = null;
                     ar = null;
                     System.gc();
                 } catch (Exception ex) {
-                    if(Objects.equals(ex.getMessage(), "Connection refused: connect")){
-                        Log.err("Can't connect to main server!");
+                    if(Objects.equals(ex.getMessage(), "Connection refused.")){
+                        Log.err("Can't connect to the main server!");
                     } else {
                         ex.printStackTrace();
                     }
