@@ -3,5 +3,5 @@
   "author": "Kieaer",
   "main": "kieaer.banclient.Main",
   "description": "Get a list of bans from main server.",
-  "version": 1.0
+  "version": 1.1
 }

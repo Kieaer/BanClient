@@ -10,7 +10,7 @@ repositories{
 }
 
 ext{
-    target = 'v96'
+    target = 'v98'
 }
 
 dependencies{

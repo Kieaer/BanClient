@@ -16,8 +16,6 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
-import static io.anuke.mindustry.Vars.netServer;
-
 public class Main extends Plugin{
     public Main(){
         Events.on(PlayerJoin.class, e -> {
@@ -49,7 +47,6 @@ public class Main extends Plugin{
                     for (int i = 0; i < result.length(); i++) {
                         String[] array = result.getString(i).split("\\|", -1);
                         if (array[0].length() == 12) {
-                            netServer.admins.banPlayerID(array[0]);
                             if (e.player.uuid.equals(array[0])) {
                                 kick = true;
                             }
