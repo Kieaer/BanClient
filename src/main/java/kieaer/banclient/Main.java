@@ -27,7 +27,9 @@ public class Main extends Plugin{
                     OutputStreamWriter osw = new OutputStreamWriter(os, StandardCharsets.UTF_8);
                     BufferedWriter bw = new BufferedWriter(osw);
 
-                    bw.write("[]\n");
+                    String ip = Vars.netServer.admins.getInfo(e.player.uuid).lastIP;
+
+                    bw.write("checkban"+e.player.uuid+"/"+ip+"\n");
                     bw.flush();
 
                     InputStream is = socket.getInputStream();
@@ -39,38 +41,12 @@ public class Main extends Plugin{
                     isr.close();
                     br.close();
                     socket.close();
-                    JSONTokener ar = new JSONTokener(message);
-                    JSONArray result = new JSONArray(ar);
+                    boolean kick = Boolean.parseBoolean(message);
 
-                    boolean kick = false;
-
-                    for (int i = 0; i < result.length(); i++) {
-                        String[] array = result.getString(i).split("\\|", -1);
-                        if (array[0].length() == 12) {
-                            if (e.player.uuid.equals(array[0])) {
-                                kick = true;
-                            }
-                            if (!array[1].equals("<unknown>") && array[1].length() <= 15) {
-                                if (Vars.netServer.admins.getInfo(e.player.uuid).lastIP.equals(array[1])) {
-                                    kick = true;
-                                }
-                            }
-                        }
-                        if (array[0].equals("<unknown>")) {
-                            if (Vars.netServer.admins.getInfo(e.player.uuid).lastIP.equals(array[1])) {
-                                kick = true;
-                            }
-                        }
-                    }
                     if (kick) {
                         Call.onKick(e.player.con, "You're banned from the main server!");
                         Log.info(e.player.name + " player has been kicked due to him being banned from the main server.");
-                    } else {
-                        Log.info(e.player.name + " player isn't banned from the main server.");
                     }
-                    result = null;
-                    ar = null;
-                    System.gc();
                 } catch (Exception ex) {
                     if(Objects.equals(ex.getMessage(), "Connection refused.")){
                         Log.err("Can't connect to the main server!");
