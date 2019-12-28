@@ -1,16 +1,20 @@
 package kieaer.banclient;
 
+import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 import io.anuke.arc.Events;
-import io.anuke.arc.util.CommandHandler;
 import io.anuke.arc.util.Log;
 import io.anuke.mindustry.Vars;
 import io.anuke.mindustry.game.EventType.PlayerJoin;
 import io.anuke.mindustry.gen.Call;
 import io.anuke.mindustry.plugin.Plugin;
-import org.json.JSONArray;
-import org.json.JSONTokener;
 
-import java.io.*;
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
@@ -23,25 +27,28 @@ public class Main extends Plugin{
                 try {
                     InetAddress address = InetAddress.getByName("mindustry.kr");
                     Socket socket = new Socket(address, 25000);
-                    OutputStream os = socket.getOutputStream();
-                    OutputStreamWriter osw = new OutputStreamWriter(os, StandardCharsets.UTF_8);
-                    BufferedWriter bw = new BufferedWriter(osw);
 
+                    KeyGenerator gen = KeyGenerator.getInstance("AES");
+                    SecretKey key = gen.generateKey();
+                    gen.init(256);
+                    byte[] raw = key.getEncoded();
+                    SecretKeySpec spec = new SecretKeySpec(raw,"AES");
+                    Cipher cipher = Cipher.getInstance("AES");
+                    BufferedReader is = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
+                    DataOutputStream os = new DataOutputStream(socket.getOutputStream());
                     String ip = Vars.netServer.admins.getInfo(e.player.uuid).lastIP;
+                    byte[] encrypted = encrypt("checkban"+e.player.uuid+"/"+ip+"\n",spec,cipher);
 
-                    bw.write("checkban"+e.player.uuid+"/"+ip+"\n");
-                    bw.flush();
+                    os.writeBytes(Base64.encode(encrypted)+"\n");
+                    os.writeBytes(Base64.encode(raw)+"\n");
+                    os.flush();
 
-                    InputStream is = socket.getInputStream();
-                    InputStreamReader isr = new InputStreamReader(is, StandardCharsets.UTF_8);
-                    BufferedReader br = new BufferedReader(isr);
-                    String message = br.readLine();
+                    byte[] receive = Base64.decode(is.readLine());
+                    byte[] result = decrypt(receive,spec,cipher);
 
                     is.close();
-                    isr.close();
-                    br.close();
                     socket.close();
-                    boolean kick = Boolean.parseBoolean(message);
+                    boolean kick = Boolean.parseBoolean(new String(result));
 
                     if (kick) {
                         Call.onKick(e.player.con, "You're banned from the main server!");
@@ -59,11 +66,13 @@ public class Main extends Plugin{
         });
     }
 
-    @Override
-    public void registerServerCommands(CommandHandler handler) {
+    public static byte[] encrypt(String data, SecretKeySpec spec, Cipher cipher) throws Exception {
+        cipher.init(Cipher.ENCRYPT_MODE, spec);
+        return cipher.doFinal(data.getBytes());
     }
 
-    @Override
-    public void registerClientCommands(CommandHandler handler) {
+    public static byte[] decrypt(byte[] data, SecretKeySpec spec, Cipher cipher) throws Exception {
+        cipher.init(Cipher.DECRYPT_MODE, spec);
+        return cipher.doFinal(data);
     }
 }
