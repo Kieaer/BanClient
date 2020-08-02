@@ -1,28 +1,24 @@
-apply plugin: "java"
-
-version '1.0'
-
-sourceCompatibility = 1.8
+plugins {
+    id 'java-library'
+    id 'com.github.johnrengelman.shadow' version '5.2.0'
+}
 
 repositories{
     mavenCentral()
-    maven{ url 'https://jitpack.io' }
-}
-
-ext{
-    target = 'v98'
+    maven{ url 'https://www.jitpack.io' }
 }
 
 dependencies{
-    compileOnly "com.github.Anuken.Arc:arc-core:$target"
-    compileOnly "com.github.Anuken.Mindustry:core:$target"
-
-    compile group: 'org.json', name: 'json', version: '20190722'
+    compileOnly "com.github.Anuken.Arc:arc-core:v104.6"
+    compileOnly "com.github.Anuken.Mindustry:core:v104.6"
 }
 
-jar{
-    version = null
-    from{
-        configurations.runtimeClasspath.collect{it.isDirectory() ? it : zipTree(it)}
-    }
+jar {
+    enabled = false
+    dependsOn(shadowJar)
+}
+
+shadowJar {
+    archiveFileName = "${project.archivesBaseName}.jar"
+    minimize()
 }
