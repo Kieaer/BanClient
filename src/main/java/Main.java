@@ -3,7 +3,7 @@ import arc.util.Log;
 import mindustry.Vars;
 import mindustry.game.EventType;
 import mindustry.gen.Call;
-import mindustry.plugin.Plugin;
+import mindustry.mod.Plugin;
 import org.hjson.JsonObject;
 import org.hjson.JsonValue;
 
@@ -36,10 +36,10 @@ public class Main extends Plugin {
                     try (Socket socket = new Socket(address, 25000);
                          BufferedReader is = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
                          DataOutputStream os = new DataOutputStream(socket.getOutputStream())) {
-                        String ip = Vars.netServer.admins.getInfo(e.player.uuid).lastIP;
+                        String ip = Vars.netServer.admins.getInfo(e.player.uuid()).lastIP;
                         JsonObject data = new JsonObject();
                         data.add("type", "CheckBan");
-                        data.add("uuid", e.player.uuid);
+                        data.add("uuid", e.player.uuid());
                         data.add("ip", ip);
 
                         byte[] encrypted = encrypt(data.toString(), spec, cipher);
@@ -52,7 +52,7 @@ public class Main extends Plugin {
                         byte[] result = decrypt(receive, spec, cipher);
 
                         if (JsonValue.readJSON(new String(result)).asObject().get("result").asBoolean()) {
-                            Call.onKick(e.player.con, "You're banned from the server!");
+                            Call.kick(e.player.con, "You're banned from the server!");
                             Log.info(e.player.name + " player has been kicked due to him being banned from the remote server.");
                         }
                     } catch (IOException ex){
